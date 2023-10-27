@@ -56,7 +56,7 @@ public final class MycatStartup {
 
             // startup
             server.startup();
-            System.out.println("MyCAT Server startup successfully. see logs in logs/mycat.log");
+            System.out.println("MyCAT Server startup successfully.");
 
         } catch (Exception e) {
             SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);

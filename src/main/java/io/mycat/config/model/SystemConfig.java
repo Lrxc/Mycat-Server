@@ -501,9 +501,10 @@ public final class SystemConfig {
 				if(conf.exists() && conf.isDirectory()) {
 					home = path;
 				} else {
-					path = new File(".").getCanonicalPath().replaceAll("\\\\", "/");
+					//path = new File(".").getCanonicalPath().replaceAll("\\\\", "/");
+					path = getCurrentPath();
 					conf = new File(path+"/conf");
-					if(conf.exists() && conf.isDirectory()) {
+					if (!conf.isDirectory()) {
 						home = path;
 					}
 				}
@@ -518,7 +519,13 @@ public final class SystemConfig {
 
 		return home;
 	}
-	
+
+	//运行时jar包所在路径(区别于启动路径)
+	private static String getCurrentPath() {
+		String path = SystemConfig.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+		return new File(path).getParent();
+	}
+
 	// 是否使用SQL统计
 	public int getUseSqlStat() 
 	{

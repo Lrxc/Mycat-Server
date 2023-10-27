@@ -26,8 +26,10 @@ package io.mycat.backend.mysql;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.util.*;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author mycat
@@ -49,12 +51,15 @@ public class CharsetUtil {
         INDEX_TO_CHARSET.put(33,"utf8");
         INDEX_TO_CHARSET.put(45,"utf8mb4");
 
-        String filePath = Thread.currentThread().getContextClassLoader()
-                .getResource("").getPath().replaceAll("%20", " ")
-                + "index_to_charset.properties";
+
         Properties prop = new Properties();
         try {
-            prop.load(new FileInputStream(filePath));
+            //String filePath = Thread.currentThread().getContextClassLoader()
+            //        .getResource("").getPath().replaceAll("%20", " ")
+            //        + "index_to_charset.properties";
+            //prop.load(new FileInputStream(filePath));
+            InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("index_to_charset.properties");
+            prop.load(inputStream);
             for (Object index : prop.keySet()){
                INDEX_TO_CHARSET.put(Integer.parseInt((String) index), prop.getProperty((String) index));
             }
