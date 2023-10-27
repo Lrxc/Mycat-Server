@@ -504,7 +504,7 @@ public final class SystemConfig {
 					//path = new File(".").getCanonicalPath().replaceAll("\\\\", "/");
 					path = getCurrentPath();
 					conf = new File(path+"/conf");
-					if (!conf.isDirectory()) {
+					if (!conf.isFile()) {
 						home = path;
 					}
 				}
