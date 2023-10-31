@@ -17,6 +17,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import io.mycat.server.handler.SQLResponseHandler;
+import io.mycat.server.handler.SQLTranalateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -709,6 +711,9 @@ public class JDBCConnection implements BackendConnection {
 			if (sc.getSqlSelectLimit() > 0) {
 				stmt.setMaxRows(sc.getSqlSelectLimit());
 			}
+
+			sql = SQLTranalateHandler.trim(sql, dbType);
+
 			rs = stmt.executeQuery(sql);
 
 			List<FieldPacket> fieldPks = new LinkedList<FieldPacket>();
@@ -746,6 +751,8 @@ public class JDBCConnection implements BackendConnection {
 			byteBuf.clear();
 			this.respHandler.fieldEofResponse(header, fields, eof, this);
 
+			ResultSetMetaData metaData = rs.getMetaData();
+
 			// output row
 			while (rs.next()) {
 				RowDataPacket curRow = new RowDataPacket(colunmCount);
@@ -757,13 +764,16 @@ public class JDBCConnection implements BackendConnection {
 							fieldPks.get(i).type == (MysqlDefs.FIELD_TYPE_NEW_DECIMAL - 256)) { // field type is unsigned byte
 						// ensure that do not use scientific notation format
 						BigDecimal val = rs.getBigDecimal(j);
-						curRow.add(StringUtil.encode(val != null ? val.toPlainString() : null,
-								sc.getCharset()));
+						curRow.add(StringUtil.encode(val != null ? val.toPlainString() : null, sc.getCharset()));
 					} else {
-						   curRow.add(StringUtil.encode(rs.getString(j),
-								   sc.getCharset()));
-					}
+						String tableName = metaData.getTableName(j);
+						String fieldName = metaData.getColumnName(j);
+						String fieldValue = rs.getString(j);
+						//结果集拦截修改
+						String newValue = SQLResponseHandler.getInstance().intercept(tableName, fieldName, fieldValue);
 
+						curRow.add(StringUtil.encode(newValue, sc.getCharset()));
+					}
 				}
 				curRow.packetId = ++packetId;
 				byteBuf = curRow.write(byteBuf, sc, false);

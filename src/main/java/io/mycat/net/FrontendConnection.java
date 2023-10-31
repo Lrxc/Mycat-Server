@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+import io.mycat.server.handler.SQLTranalateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -353,6 +354,9 @@ public abstract class FrontendConnection extends AbstractConnection {
 			writeErrMessage(ErrorCode.ER_NOT_ALLOWED_COMMAND, "Empty SQL");
 			return;
 		}
+
+		//mysql语法翻译成其他sql语言
+		sql = SQLTranalateHandler.tranlate(sql, user);
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug(new StringBuilder().append(this).append(" ").append(sql).toString());
