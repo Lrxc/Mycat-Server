@@ -3,8 +3,11 @@ package io.mycat.server.handler;
 import io.mycat.MycatServer;
 import io.mycat.backend.datasource.PhysicalDBNode;
 import io.mycat.config.model.SchemaConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SQLTranalateHandler {
+    private static final Logger logger = LoggerFactory.getLogger(SQLTranalateHandler.class);
 
     /**
      * 特殊字符需修
@@ -25,9 +28,8 @@ public class SQLTranalateHandler {
                 break;
         }
 
-        System.out.println("sql: " + sql);
-        System.out.println("transSql: " + transSql);
-        System.out.println();
+        logger.debug("sql: " + sql);
+        logger.debug("transSql-[{}]: {} \n", dbType, transSql);
         return transSql;
     }
 
@@ -70,7 +72,7 @@ public class SQLTranalateHandler {
             if ("SHOW TABLES".equalsIgnoreCase(sql)) {
                 sql = "SELECT TABLE_NAME FROM ALL_TABLES WHERE OWNER IN (" + schemaName + ")";
             } else if (sql.contains("SHOW FULL TABLES")) {
-                sql = "SELECT TABLE_NAME AS OBJECT_NAME,'BASE TABLE' AS Table_type FROM ALL_TABLES WHERE OWNER IN (" + schemaName + ")";
+                sql = "SELECT TABLE_NAME AS OBJECT_NAME,'BASE TABLE' AS Table_type FROM ALL_TABLES WHERE OWNER IN ('" + schemaName + "')";
             } else if ("SHOW FULL TABLES WHERE Table_type != 'VIEW'".equalsIgnoreCase(sql)) {
                 sql = " SELECT OBJECT_NAME,'BASE TABLE' AS Table_type FROM USER_OBJECTS WHERE OBJECT_TYPE='TABLE' ";
             } else if ("SHOW TABLE STATUS".equalsIgnoreCase(sql)) {
@@ -101,7 +103,7 @@ public class SQLTranalateHandler {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Oracle获取表名失败：" + e.toString());
+            logger.error("Oracle语法转换失败", e);
         }
         return sql;
     }
