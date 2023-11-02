@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Objects;
 
 import io.mycat.server.handler.SQLResponseHandler;
-import io.mycat.server.handler.SQLTranalateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -711,9 +710,6 @@ public class JDBCConnection implements BackendConnection {
 			if (sc.getSqlSelectLimit() > 0) {
 				stmt.setMaxRows(sc.getSqlSelectLimit());
 			}
-
-			sql = SQLTranalateHandler.trim(sql, dbType);
-
 			rs = stmt.executeQuery(sql);
 
 			List<FieldPacket> fieldPks = new LinkedList<FieldPacket>();
